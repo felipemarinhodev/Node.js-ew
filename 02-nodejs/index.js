@@ -7,8 +7,6 @@
 const util = require('util');
 const obterEnderecoAsync = util.promisify(obterEndereco);
 
-// obterEnderecoAsync.then()
-
 function obterUsuario() {
 	// quando der algum problema -> reject(erro)
 	// qaundo success -> resolve
@@ -47,44 +45,28 @@ function obterEndereco(idUsuario, callback) {
 	}, 2000)
 }
 
-const usuarioPromise = obterUsuario();
-// para manipular o sucesso usamos a função .then()
-// para manipular os erros, usamos o .catch()
-// usuario -> telefone -> telefone
-usuarioPromise
-	.then(function (usuario) {
-		return obterTelefone(usuario.id)
-			.then(function resolveTelefone(result) {
-				return {
-					usuario: {
-						...usuario,
-					},
-					telefone: {
-						...result
-					}
-				}
-		})
-	})
-	.then(function(resultado) {
-		const endereco = obterEnderecoAsync(resultado.usuario.id)
-
-			return endereco
-				.then(function resolverEndereco(endereco) {
-					return {
-						...resultado,
-						endereco: {
-							...endereco
-						}
-					}
-				})
-	})
-	.then(function (resultado) {
+// 1º passo, adicionar a palavra async -> automaticamente ela retornará uma Promise
+main();
+async function main() {
+	try {
+		console.time('medida-promise')
+		const usuario = await obterUsuario();
+		// Não é necessário utilizar o await nos exemplos abaixo, pois eles não dependem um do outro para isso utilizamos o Promise.all
+		// const telefone = await obterTelefone(usuario.id);
+		// const endereco = await obterEnderecoAsync(usuario.id);
+		const resultado = await Promise.all([
+			obterTelefone(usuario.id),
+			obterEnderecoAsync(usuario.id)
+		])
+		const [telefone, endereco] = resultado;
 		console.log(`
-			Nome: ${resultado.usuario.nome}
-			Endereço: ${resultado.endereco.rua}, ${resultado.endereco.numero}
-			Telefone: (${resultado.telefone.ddd}) ${resultado.telefone.telefone}
+			Nome: ${usuario.nome}
+			Telefene: (${telefone.ddd}) ${telefone.telefone}
+			Endereço: ${endereco.rua}, ${endereco.numero}
 		`);
-	})
-	.catch(function (error) {
-		console.error('Deu Ruim', error);
-	})
+		console.timeEnd('medida-promise')
+	} catch (error) {
+		console.error('catch - Deu Ruim', error);
+		
+	}
+}
