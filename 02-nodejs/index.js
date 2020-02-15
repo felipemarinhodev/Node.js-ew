@@ -4,6 +4,8 @@
  * 2 - Obter o endereço do usuário pelo Id
  */
 
+ // o Padrão callback fala que o primeiro parametro é o erro e o segundo é o sucesso.
+
 function obterUsuario(callback) {
 	setTimeout(function() {
 		return callback(null, {
@@ -30,11 +32,6 @@ function obterEndereco(idUsuario, callback) {
 			numero: 69
 		})
 	}, 2000)
-}
-
-// o Padrão callback fala que o primeiro parametro é o erro e o segundo é o sucesso.
-function resolverUsuario(erro, usuario) {
-	console.log('resolverUsuario> usuario', usuario);
 }
 
 obterUsuario(function resolverUsuario(error, usuario) {
